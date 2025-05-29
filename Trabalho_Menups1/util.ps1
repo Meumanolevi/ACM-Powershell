@@ -12,7 +12,7 @@ function Clear-DnsCache {
 function Restart-NetworkAdapter {
     Write-Host "Reiniciando adaptador de rede..." -ForegroundColor Red
     try {
-        Get-NetAdapter | Restart-NetAdapter -Confirm:$false
+        Get-NetAdapter | Restart-NetAdapter -Confirm:$false -Force
         Write-Host "Adaptador de rede reiniciado com sucesso." -ForegroundColor Green
     } catch {
         Write-Host "`n⚠️Erro ao reiniciar adaptador de rede: $_" -ForegroundColor Yellow
@@ -22,10 +22,11 @@ function Restart-NetworkAdapter {
 function Start-ProcessSafe {
     param (
         [string]$processPath,
-        [string]$errorMessage
+        [string]$arguments = "",
+        [string]$errorMessage = "Não foi possível iniciar o processo"
     )
     try {
-        Start-Process $processPath -ErrorAction Stop
+        Start-Process $processPath -ArgumentList $arguments -NoNewWindow -Wait -ErrorAction Stop
     } catch {
         Write-Host "`n⚠️ $errorMessage : $_" -ForegroundColor Yellow
     }

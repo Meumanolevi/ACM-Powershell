@@ -10,7 +10,7 @@ chcp 65001 > $null
 
 function Show-Menu {
     Clear-Host
-    $width = 60
+    $width = 110
     $border = "═" * $width
     $title = "MENU DE UTILIDADES"
     $padding = " " * [math]::Floor(($width - $title.Length) / 2)
@@ -40,9 +40,9 @@ function Show-Menu {
     " [0]  Sair"
     )
     foreach ($opcao in $opcoes) {
-        $opcaoPadding = " " * [math]::Floor(($width - $opcao.Length) / 2)
-        Write-Host "$opcaoPadding$opcao$opcaoPadding" -ForegroundColor White
-    }
+    $opcaoPadding = " " * [math]::Max(0, [math]::Floor(($width - $opcao.Length) / 2))
+    Write-Host "$opcaoPadding$opcao$opcaoPadding" -ForegroundColor White
+}
 
     Write-Host ""
     Write-Host ("─" * ($width + 2)) -ForegroundColor Red
