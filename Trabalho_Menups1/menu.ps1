@@ -1,4 +1,4 @@
-﻿# Autor: Kayã Haufe Bedim
+﻿# Feito por: Glenda e Levi 1IF3
 
 # Configurações de codificação
 $PSDefaultParameterValues['Out-File:Encoding'] = 'utf8BOM'
@@ -8,11 +8,39 @@ chcp 65001 > $null
 # Importa utilidades
 . "$PSScriptRoot\util.ps1"
 
+function Show-Welcome {
+    Clear-Host
+    $width = 105
+    $border = "═" * $width
+    $title = "BEM-VINDO"
+    $padding = " " * [math]::Floor(($width - $title.Length) / 2)
+
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host "      ╔$border╗" -ForegroundColor Red
+    Write-Host "      ║$padding$title$padding║" -ForegroundColor White
+    Write-Host "      ╚$border╝" -ForegroundColor Red
+    Write-Host ""
+    Write-Host (" " * [math]::Floor(($width - 44) / 2)) "           Desenvolvido por Glenda e Levi do 1IF3" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host ("─" * ($width + 15)) -ForegroundColor Red
+    Start-Sleep -Seconds 3
+}
+
+
 function Show-Menu {
     Clear-Host
     $width = 110
     $border = "═" * $width
-    $title = "MENU DE UTILIDADES"
+    $title = "MENU DE UTILIDADES DE CORREÇÂO"
     $padding = " " * [math]::Floor(($width - $title.Length) / 2)
 
     # Cabeçalho formatado
@@ -45,7 +73,7 @@ function Show-Menu {
 }
 
     Write-Host ""
-    Write-Host ("─" * ($width + 2)) -ForegroundColor Red
+    Write-Host ("─" * ($width + 5)) -ForegroundColor Red
 }
 function Invoke-Option {
     param ([int]$Option)
@@ -64,10 +92,13 @@ function Invoke-Option {
     11 { Check-ProxySettings }
     12 { Search-Google } # Pesquisar no Google
     13 { Search-Youtube } # Pesquisar no YouTube
-    0 { Write-Host "`nSaindo... Até logo!`n" -ForegroundColor DarkYellow; exit }
+    0 { Write-Host "`nSaindo... Até logo!" -ForegroundColor Yellow
+        Stop-Process -Id $PID  }
     default { Write-Host "`n⚠️  Opção inválida. Tente novamente." -ForegroundColor Red }
 }
 }
+
+Show-Welcome
 
 do {
     Show-Menu

@@ -69,7 +69,7 @@ function Test-Internet {
     try {
         $pingresult = Test-Connection -ComputerName "google.com" -Count 4
         if ($pingresult) {
-            Write-Host "Conexão com a Internet está funcionando." -ForegroundColor Green
+            Write-Host "Conexão com a Internet está normal." -ForegroundColor Green
         } else {
             Write-Host "Não foi possível conectar à Internet." -ForegroundColor Yellow
         }
@@ -116,27 +116,44 @@ function Check-WindowsActivation {
 function Check-ProxySettings {
     Write-Host "Verificando configurações de proxy..." -ForegroundColor Red
     try {
-        $proxy = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyEnable, ProxyServer -ErrorAction Stop
-        if ($proxy.ProxyEnable) {
-            Write-Host "Proxy está habilitado: $($proxy.ProxyServer)" -ForegroundColor Green
+        $proxy = Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -ErrorAction Stop
+        $isEnabled = $proxy.ProxyEnable -eq 1
+        $proxyServer = $proxy.ProxyServer
+
+        if ($isEnabled -and $proxyServer) {
+            Write-Host "Proxy está habilitado: $proxyServer" -ForegroundColor Green
         } else {
             Write-Host "Proxy está desabilitado." -ForegroundColor Yellow
             $ativar = Read-Host "Deseja ativar o proxy? (s/n)"
             if ($ativar -eq 's') {
-                $proxyServer = Read-Host "Digite o endereço do servidor proxy (ex: http://proxy.example.com:8080)"
-                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyEnable -Value 1
-                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyServer -Value $proxyServer
-                Write-Host "Proxy ativado com sucesso: $proxyServer" -ForegroundColor Green
+                $novoProxy = Read-Host "Digite o endereço do servidor proxy (ex: 192.168.1.100:8080)"
+                if ($novoProxy) {
+                    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyEnable -Value 1
+                    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyServer -Value $novoProxy
+                    Write-Host "Proxy ativado com sucesso: $novoProxy" -ForegroundColor Green
+                } else {
+                    Write-Host "Endereço de proxy não informado. Proxy não ativado." -ForegroundColor Yellow
+                }
             } else {
                 Write-Host "Proxy não foi ativado." -ForegroundColor Yellow
             }
         }
-        
     } catch {
-        Write-Host "`n⚠️Erro ao verificar configurações de proxy: $_" -ForegroundColor Yellow
+        Write-Host "`n⚠️ Erro ao acessar configurações de proxy: $_" -ForegroundColor Yellow
+        # Permite criar as chaves se não existirem
+        $ativar = Read-Host "Deseja criar e ativar o proxy? (s/n)"
+        if ($ativar -eq 's') {
+            $novoProxy = Read-Host "Digite o endereço do servidor proxy (ex: 192.168.1.100:8080)"
+            if ($novoProxy) {
+                New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyEnable -Value 1 -PropertyType DWord -Force | Out-Null
+                New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name ProxyServer -Value $novoProxy -PropertyType String -Force | Out-Null
+                Write-Host "Proxy ativado com sucesso: $novoProxy" -ForegroundColor Green
+            } else {
+                Write-Host "Endereço de proxy não informado. Proxy não ativado." -ForegroundColor Yellow
+            }
+        }
     }
-      
-} 
+}
 
 
 # Pesquisa no Google
@@ -144,7 +161,7 @@ function Search-Google {
     $query = Read-Host "Digite o que deseja pesquisar no google"
     if ($query) {
         $encodedQuery = [uri]::EscapeDataString($query)
-        Start-SafeProcess "https://www.google.com/search?q=$encodedQuery" "Não foi possível abrir o navegador."
+        Start-Process "https://www.google.com/search?q=$encodedQuery" "Não foi possível abrir o navegador."
     } else {
         Write-Host "Pesquisa cancelada." -ForegroundColor Yellow
     }
@@ -155,10 +172,11 @@ function Search-Youtube {
     $query = Read-Host "Digite o que deseja pesquisar no youtube"
     if ($query) {
         $encodedQuery = [uri]::EscapeDataString($query)
-        Start-SafeProcess "https://www.youtube.com/results?search_query=$encodedQuery" "Não foi possível abrir o navegador."
+        Start-Process "https://www.youtube.com/results?search_query=$encodedQuery" "Não foi possível abrir o navegador."
     } else {
         Write-Host "Pesquisa cancelada." -ForegroundColor Yellow
     }
 }
+
 
 
