@@ -25,6 +25,7 @@ function Show-Welcome {
     Write-Host ""
     Write-Host ""
     Write-Host ""
+    Write-Host ""
     Write-Host "      ╔$border╗" -ForegroundColor Red
     Write-Host "      ║$padding$title$padding║" -ForegroundColor White
     Write-Host "      ╚$border╝" -ForegroundColor Red
@@ -33,6 +34,16 @@ function Show-Welcome {
     Write-Host ""
     Write-Host ("─" * ($width + 15)) -ForegroundColor Red
     Start-Sleep -Seconds 3
+
+    # Efeito de carregando
+    Write-Host ""
+    for ($i=0; $i -lt 3; $i++) {
+        Write-Host (" " * [math]::Floor($width/2)) -NoNewline
+        Write-Host "." -NoNewline -ForegroundColor Yellow
+        Start-Sleep -Milliseconds 400
+    }
+    Write-Host ""
+    Start-Sleep -Seconds 1
 }
 
 
@@ -45,35 +56,59 @@ function Show-Menu {
 
     # Cabeçalho formatado
     Write-Host ""
-    Write-Host "╔$border╗" -ForegroundColor Red
-    Write-Host "║$padding$title$padding║" -ForegroundColor White
-    Write-Host "╚$border╝" -ForegroundColor Red
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host ""
+    Write-Host "   ╔$border╗" -ForegroundColor Red
+    Write-Host "   ║$padding$title$padding║" -ForegroundColor White
+    Write-Host "   ╚$border╝" -ForegroundColor Red
     Write-Host ""
 
     # Opções centralizadas
     $opcoes = @(
-    " [1]  Limpar Cache DNS (corrigir problemas de acesso a sites)",
-    " [2]  Reiniciar Adaptador de Rede (corrigir problemas de conexão)",
-    " [3]  Liberar Espaço em Disco (abrir limpeza de disco)",
-    " [4]  Corrigir Arquivos do Sistema (sfc /scannow)",
-    " [5]  Reiniciar Windows Explorer (corrigir travamentos da área de trabalho)",
-    " [6]  Verificar Atualizações do Windows",
-    " [7]  Testar Conexão com a Internet (ping)",
-    " [8]  Verificar Uso de CPU/RAM",
-    " [9]  Verificar Status de Ativação do Windows",
-    " [10] Verificar Logs de Eventos (eventvwr)",
-    " [11] Verificar Configurações de Proxy",
-    " [12] Pesquisar no Google",
-    " [13] Pesquisar no YouTube",
-    " [0]  Sair"
-    )
+    " [1]  🧹 Limpar Cache DNS (corrigir problemas de acesso a sites)",
+    " [2]  🌐 Reiniciar Adaptador de Rede (corrigir problemas de conexão)",
+    " [3]  💾 Liberar Espaço em Disco (abrir limpeza de disco)",
+    " [4]  🛠️ Corrigir Arquivos do Sistema (sfc /scannow)",
+    " [5]  🔄 Reiniciar Windows Explorer (corrigir travamentos da área de trabalho)",
+    " [6]  📝 Verificar Atualizações do Windows",
+    " [7]  📶 Testar Conexão com a Internet (ping)",
+    " [8]  📊 Verificar Uso de CPU/RAM",
+    " [9]  🔑 Verificar Status de Ativação do Windows",
+    " [10] 🗂️ Verificar Logs de Eventos (eventvwr)",
+    " [11] 🌍 Verificar Configurações de Proxy",
+    " [12] 🔎 Pesquisar no Google",
+    " [13] ▶️ Pesquisar no YouTube",
+    " [0]  🚪 Sair"
+)
     foreach ($opcao in $opcoes) {
+    $cor = if ($opcao -like "*[0]*Sair*") { "Yellow" } else { "Cyan" }
     $opcaoPadding = " " * [math]::Max(0, [math]::Floor(($width - $opcao.Length) / 2))
-    Write-Host "$opcaoPadding$opcao$opcaoPadding" -ForegroundColor White
+    Write-Host "$opcaoPadding$opcao$opcaoPadding" -ForegroundColor $cor
 }
 
     Write-Host ""
-    Write-Host ("─" * ($width + 5)) -ForegroundColor Red
+    Write-Host ("─" * ($width + 10)) -ForegroundColor Red
+
+    # Rodapé formatado
+    
+    $footer2Padding = " " * [math]::Max(0, [math]::Floor(($width - $footer2.Length) / 2))
+    Write-Host "$footer2Padding$footer2$footer2Padding" -ForegroundColor DarkGray
+
+
+    $corRodape = "DarkGray"
+    $dataHora = Get-Date -Format "dd/MM/yyyy HH:mm:ss"
+    $footer = "Use os números para selecionar uma opção."
+    $footer2 = "Data e hora: $dataHora"
+    $footerPadding = " " * [math]::Max(0, [math]::Floor(($width - $footer.Length) / 2))
+    $footer2Padding = " " * [math]::Max(0, [math]::Floor(($width - $footer2.Length) / 2))
+    Write-Host "$footerPadding$footer$footerPadding" -ForegroundColor $corRodape
+    Write-Host "$footer2Padding$footer2$footer2Padding" -ForegroundColor $corRodape
+
+
+
+
 }
 function Invoke-Option {
     param ([int]$Option)
@@ -92,8 +127,16 @@ function Invoke-Option {
     11 { Check-ProxySettings }
     12 { Search-Google } # Pesquisar no Google
     13 { Search-Youtube } # Pesquisar no YouTube
-    0 { Write-Host "`nSaindo... Até logo!" -ForegroundColor Yellow
-        Stop-Process -Id $PID  }
+    0 {
+    Write-Host "`nSaindo" -NoNewline -ForegroundColor Yellow
+    for ($i=0; $i -lt 3; $i++) {
+        Start-Sleep -Milliseconds 400
+        Write-Host "." -NoNewline -ForegroundColor Yellow
+    }
+    Write-Host "`nAté logo!" -ForegroundColor Yellow
+    Start-Sleep -Seconds 1
+    Stop-Process -Id $PID
+}
     default { Write-Host "`n⚠️  Opção inválida. Tente novamente." -ForegroundColor Red }
 }
 }
